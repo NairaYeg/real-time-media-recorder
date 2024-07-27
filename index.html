@@ -10,9 +10,25 @@
 
   <body>
     <main>
-      <button id="startBtn">Start recording</button>
-      <button id="stopBtn">Stop recording</button>
-      <audio controls id="audioPlayback" type="audio/ogg; codecs=opus"></audio>
+      <section id="recording">
+        <button id="startBtn">Start recording</button>
+        <button id="stopBtn">Stop recording</button>
+        <div class="volume-slider">
+          <input
+            id="volume"
+            type="range"
+            min="0"
+            max="1"
+            step="0.01"
+            value="1"
+          />
+        </div>
+        <audio
+          controls
+          id="audioPlayback"
+          type="audio/ogg; codecs=opus"
+        ></audio>
+      </section>
     </main>
     <script src="./src/index.js" type="module"></script>
   </body>

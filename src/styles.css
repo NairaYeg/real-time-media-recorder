@@ -1,0 +1,71 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
+  
+  html,
+  body {
+    height: 100%;
+  }
+  
+  body {
+    font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+    font-size: 0.8rem;
+  }
+
+
+#startBtn  {
+	display: inline-block;
+	outline: none;
+	cursor: pointer;
+	width: 20rem;
+	margin: 0.5rem 1rem;
+	padding: 0 16px;
+	background-color: #fff;
+	border-radius: 0.25rem;
+	border: 1px solid #0070d2;
+	color: #0070d2;
+	font-size: 13px;
+	line-height: 30px;
+	font-weight: 400;
+	text-align: center;
+	:hover {
+		background-color: #f4f6f9; 
+	} 
+}
+
+
+#stopBtn {
+	display: inline-block;
+	outline: none;
+	cursor: pointer;
+	width: 20rem;
+	margin: 0.5rem 1rem;
+	padding: 0 16px;
+	background-color: #fff;
+	border-radius: 0.25rem;
+	border: 1px solid #dddbda;
+	color: #0070d2;
+	font-size: 13px;
+	line-height: 30px;
+	font-weight: 400;
+	text-align: center;
+	:hover {
+		background-color: #f4f6f9; 
+	} 
+}
+
+#audioPlayback{
+	margin: 0.5rem 1rem
+}
+
+.volume-slider {
+    width: 100%;
+	margin: 0.5rem 1rem;
+}
+
+#recording {
+	display: flex;
+	flex-direction: column;
+}

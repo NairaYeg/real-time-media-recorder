@@ -8,6 +8,7 @@ const audioRecorder = new AudioRecorder(audioPlayback);
 
 startBtn.addEventListener("click", async () => {
   try {
+    audioPlayback.src = "";
     await audioRecorder.start();
   } catch (err) {
     console.error("Failed to start recording", err);
