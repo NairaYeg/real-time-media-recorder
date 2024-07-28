@@ -57,7 +57,6 @@ class AudioRecorder {
     volumeSlider.addEventListener(
       "input",
       function () {
-        console.log({ volumeSlider: volumeSlider.value });
         this.gainNode.gain.value = parseFloat(volumeSlider.value);
       }.bind(this)
     );

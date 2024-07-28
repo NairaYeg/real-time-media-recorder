@@ -15,19 +15,19 @@
   }
 
 
-#startBtn  {
+button {
 	display: inline-block;
 	outline: none;
 	cursor: pointer;
 	width: 20rem;
 	margin: 0.5rem 1rem;
-	padding: 0 16px;
+	padding: 0 1rem;
 	background-color: #fff;
 	border-radius: 0.25rem;
-	border: 1px solid #0070d2;
+	border: .1rem solid #0070d2;
 	color: #0070d2;
-	font-size: 13px;
-	line-height: 30px;
+	font-size: .8rem;
+	line-height: 2rem;
 	font-weight: 400;
 	text-align: center;
 	:hover {
@@ -35,37 +35,36 @@
 	} 
 }
 
-
-#stopBtn {
-	display: inline-block;
-	outline: none;
-	cursor: pointer;
-	width: 20rem;
-	margin: 0.5rem 1rem;
-	padding: 0 16px;
-	background-color: #fff;
-	border-radius: 0.25rem;
-	border: 1px solid #dddbda;
-	color: #0070d2;
-	font-size: 13px;
-	line-height: 30px;
-	font-weight: 400;
-	text-align: center;
-	:hover {
-		background-color: #f4f6f9; 
-	} 
+#audioStartBtn:disabled,
+#videoStartBtn:disabled,
+#audioStopBtn:disabled,
+#videoStopBtn:disabled,
+.toggleMediaSectionBtn:disabled {
+    cursor: not-allowed;
+    background-color: #e0e0e0;
+    color: #a0a0a0;
+    border: 1px solid #c0c0c0;
 }
 
-#audioPlayback{
-	margin: 0.5rem 1rem
+
+#audioStopBtn,
+#videoStopBtn{
+ border: 1px solid #dddbda;
 }
 
-.volume-slider {
-    width: 100%;
+.volumeSlider {
 	margin: 0.5rem 1rem;
 }
 
-#recording {
-	display: flex;
-	flex-direction: column;
+.hidden {
+	display: none;
+  }
+
+
+#canvas {
+	float: left;
+	border: .1rem solid #444444;
+	padding: .5rem;
+	margin: .5rem;
+	background: #3b3b3b;
 }
