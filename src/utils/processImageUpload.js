@@ -4,7 +4,7 @@
  * @param {Event} event - The event object triggered by the file input change.
  * @param {Object} videoRecorder - The video recorder object.
  */
-const processImageUpload = (event, videoRecorder) => {
+function processImageUpload(event, videoRecorder) {
   const file = event.target.files[0];
   if (file) {
     const reader = new FileReader();
@@ -17,6 +17,6 @@ const processImageUpload = (event, videoRecorder) => {
     };
     reader.readAsDataURL(file);
   }
-};
+}
 
 export default processImageUpload;

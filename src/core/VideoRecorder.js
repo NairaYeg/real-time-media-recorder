@@ -1,57 +1,47 @@
 class VideoRecorder {
-  #canvasId;
-  #videoElementId;
-  #imageUploadId;
-  #mediaRecorder;
-  #recordedChunks;
-  #videoElement;
-  #canvasSize;
-  #canvasElement;
-  #uploadedImage;
-  #stream;
+  constructor(canvas, playbackVideoElement, imageInputElement) {
+    this.canvas = canvas;
+    this.playbackVideo = playbackVideoElement;
+    this.imageInputElement = imageInputElement;
 
-  constructor(canvasId, videoElementId, imageUploadId) {
-    this.#canvasId = canvasId;
-    this.#videoElementId = videoElementId;
-    this.#imageUploadId = imageUploadId;
-    this.#mediaRecorder = null;
-    this.#recordedChunks = [];
-    this.#videoElement = null;
-    this.#canvasSize = 400;
-    this.#canvasElement = null;
-    this.#uploadedImage = null;
-    this.#stream = null;
+    this.mediaRecorder = null;
+    this.recordedChunks = [];
+    this.liveVideoElement = null;
+    this.canvasSize = 300;
+
+    this.uploadedImage = null;
+    this.audioStream = null;
+    this.videoStream = null;
+    this.canvasStream = null;
   }
 
   #initializeCanvas() {
-    const canvas = document.getElementById(this.#canvasId);
-    canvas.width = this.#canvasSize;
-    canvas.height = this.#canvasSize;
-    return canvas;
+    this.canvas.width = this.canvasSize;
+    this.canvas.height = this.canvasSize;
   }
 
   #drawFrame(ctx) {
-    if (this.#videoElement != null) {
+    if (this.liveVideoElement != null) {
       const minDimension = Math.min(
-        this.#videoElement.videoWidth,
-        this.#videoElement.videoHeight
+        this.liveVideoElement.videoWidth,
+        this.liveVideoElement.videoHeight
       );
-      const sx = (this.#videoElement.videoWidth - minDimension) / 2;
-      const sy = (this.#videoElement.videoHeight - minDimension) / 2;
+      const sx = (this.liveVideoElement.videoWidth - minDimension) / 2;
+      const sy = (this.liveVideoElement.videoHeight - minDimension) / 2;
       ctx.drawImage(
-        this.#videoElement,
+        this.liveVideoElement,
         sx,
         sy,
         minDimension,
         minDimension,
         0,
         0,
-        this.#canvasSize,
-        this.#canvasSize
+        this.canvasSize,
+        this.canvasSize
       );
 
-      if (this.#uploadedImage) {
-        ctx.drawImage(this.#uploadedImage, 0, 0, 100, 100);
+      if (this.uploadedImage) {
+        ctx.drawImage(this.uploadedImage, 0, 0, 100, 100);
       }
       requestAnimationFrame(() => this.#drawFrame(ctx));
     } else {
@@ -59,56 +49,53 @@ class VideoRecorder {
     }
   }
 
-  async #startRecording(canvas) {
-    this.#stream = canvas.captureStream(30); // 30 FPS
-    const videoStream = this.#stream;
-    let audioStream;
+  async #startRecording() {
+    this.canvasStream = this.canvas.captureStream(30); // 30 FPS
     try {
-      audioStream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      this.audioStream = await navigator.mediaDevices.getUserMedia({
+        audio: true,
+      });
     } catch (err) {
       console.error("Failed to get audio stream:", err);
       return;
     }
 
     const combinedStream = new MediaStream([
-      ...videoStream.getVideoTracks(),
-      ...audioStream.getAudioTracks(),
+      ...this.canvasStream.getVideoTracks(),
+      ...this.audioStream.getAudioTracks(),
     ]);
 
-    this.#mediaRecorder = new MediaRecorder(combinedStream, {
+    this.mediaRecorder = new MediaRecorder(combinedStream, {
       mimeType: "video/webm",
     });
 
-    this.#mediaRecorder.ondataavailable = (event) => {
+    this.mediaRecorder.ondataavailable = (event) => {
       if (event.data.size > 0) {
-        console.log({ eventData: event.data });
-        this.#recordedChunks.push(event.data);
+        this.recordedChunks.push(event.data);
       }
     };
 
-    this.#mediaRecorder.onstop = () => {
-      console.log({ recordedChunks: this.#recordedChunks });
-      const blob = new Blob(this.#recordedChunks, { type: "video/webm" });
+    this.mediaRecorder.onstop = () => {
+      const blob = new Blob(this.recordedChunks, { type: "video/webm" });
       const url = URL.createObjectURL(blob);
-      document.getElementById(this.#videoElementId).src = url;
-      console.log({ url });
+      this.playbackVideo.src = url;
     };
 
-    this.#mediaRecorder.start();
+    this.mediaRecorder.start();
   }
 
   #initializeCamera() {
     navigator.mediaDevices
       .getUserMedia({ video: true, audio: true })
       .then((stream) => {
-        this.#videoElement = document.createElement("video");
-        this.#videoElement.srcObject = stream;
-        this.#videoElement.play();
+        this.liveVideoElement = document.createElement("video");
+        this.videoStream = stream;
+        this.liveVideoElement.srcObject = stream;
+        this.liveVideoElement.play();
 
-        this.#videoElement.onplaying = () => {
-          const canvas = document.getElementById(this.#canvasId);
-          const ctx = canvas.getContext("2d");
-          this.#startRecording(canvas);
+        this.liveVideoElement.onplaying = () => {
+          const ctx = this.canvas.getContext("2d");
+          this.#startRecording();
           this.#drawFrame(ctx);
         };
       })
@@ -118,31 +105,31 @@ class VideoRecorder {
   }
 
   startRecording() {
-    this.#canvasElement = this.#initializeCanvas();
+    this.#initializeCanvas();
     this.#initializeCamera();
   }
 
-  stopRecording() {
-    document.getElementById(this.#imageUploadId).value = "";
-    if (this.#mediaRecorder) {
-      this.#mediaRecorder.stop();
-      this.#mediaRecorder = null;
-      this.#stream.getTracks().forEach((track) => track.stop());
-      this.#stream = null;
-      this.#videoElement.srcObject = null;
+  #stopStream(stream) {
+    if (stream) {
+      stream.getTracks().forEach((track) => track.stop());
     }
   }
 
-  handleImageUpload(event) {
-    const file = event.target.files[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        this.#uploadedImage = new Image();
-        this.#uploadedImage.src = e.target.result;
-      };
-      reader.readAsDataURL(file);
+  stopRecording() {
+    if (this.mediaRecorder) {
+      this.mediaRecorder.stop();
+      this.mediaRecorder = null;
     }
+
+    this.#stopStream(this.audioStream);
+    this.#stopStream(this.videoStream);
+    this.#stopStream(this.canvasStream);
+
+    this.recordedChunks = [];
+    this.videoStream = null;
+    this.audioStream = null;
+    this.uploadedImage = "";
+    this.imageInputElement.value = "";
   }
 }
 
