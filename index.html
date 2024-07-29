@@ -60,12 +60,15 @@
         >
           Stop Video Recording
         </button>
-        <input type="file" id="imageUpload" accept="image/*" id="imageUpload" />
+        <label for="imageUpload" class="fileUploadButton hidden"
+          >Upload Image</label
+        >
+        <input type="file" id="imageUpload" accept="image/*" class="hidden" />
         <div>
           <canvas id="canvas" width="400" height="300"></canvas>
         </div>
         <div>
-          <video id="recordedVideo" controls width="400" height="300"></video>
+          <video id="recordedVideo" controls width="420" height="300"></video>
         </div>
       </section>
     </main>

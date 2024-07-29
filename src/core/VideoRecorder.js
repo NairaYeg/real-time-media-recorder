@@ -7,7 +7,7 @@ class VideoRecorder {
     this.mediaRecorder = null;
     this.recordedChunks = [];
     this.liveVideoElement = null;
-    this.canvasSize = 300;
+    this.canvasSize = 400;
 
     this.uploadedImage = null;
     this.uploadedImages = [];

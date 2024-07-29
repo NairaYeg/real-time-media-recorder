@@ -1,5 +1,6 @@
 import AudioRecorder from "./core/AudioRecorder.js";
 import VideoRecorder from "./core/VideoRecorder.js";
+import processImageUpload from "./utils/processImageUpload.js";
 
 const startBtn = document.querySelector("#audioStartBtn");
 const stopBtn = document.querySelector("#audioStopBtn");
@@ -10,12 +11,18 @@ const toggleMediaSectionBtn = document.querySelector(".toggleMediaSectionBtn");
 const recordAudioSection = document.querySelector("#audioSection");
 const recordVideoSection = document.querySelector("#videoSection");
 const imageUploadInput = document.getElementById("imageUpload");
-const audioRecorder = new AudioRecorder(audioPlayback);
+const canvas = document.getElementById("canvas");
+const videoElement = document.getElementById("recordedVideo");
+const imageInputElement = document.getElementById("imageUpload");
+const fileUploadButton = document.querySelector(".fileUploadButton");
+
 const videoRecorder = new VideoRecorder(
-  "canvas",
-  "recordedVideo",
-  "imageUpload"
+  canvas,
+  videoElement,
+  imageInputElement
 );
+
+const audioRecorder = new AudioRecorder(audioPlayback);
 
 function toggleMediaSection() {
   if (recordAudioSection.classList.contains("hidden")) {
@@ -55,14 +62,16 @@ stopBtn.addEventListener("click", () => {
 
 startVideoRecordingBtn.addEventListener("click", () => {
   startVideoRecordingBtn.disabled = true;
+  fileUploadButton.classList.remove("hidden");
   videoRecorder.startRecording();
 });
 
 stopVideoRecordingBtn.addEventListener("click", () => {
+  fileUploadButton.classList.add("hidden");
   startVideoRecordingBtn.disabled = false;
   videoRecorder.stopRecording();
 });
 
 imageUploadInput.addEventListener("change", (event) => {
-  videoRecorder.handleImageUpload(event);
+  processImageUpload(event, videoRecorder);
 });
