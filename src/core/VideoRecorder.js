@@ -10,9 +10,13 @@ class VideoRecorder {
     this.canvasSize = 300;
 
     this.uploadedImage = null;
+    this.uploadedImages = [];
+
     this.audioStream = null;
     this.videoStream = null;
     this.canvasStream = null;
+
+    this.animationFrameId = null;
   }
 
   #initializeCanvas() {
@@ -40,10 +44,19 @@ class VideoRecorder {
         this.canvasSize
       );
 
-      if (this.uploadedImage) {
-        ctx.drawImage(this.uploadedImage, 0, 0, 100, 100);
-      }
-      requestAnimationFrame(() => this.#drawFrame(ctx));
+      const positions = [
+        { x: 0, y: 0 },
+        { x: this.canvasSize - 100, y: 0 },
+        { x: 0, y: this.canvasSize - 100 },
+        { x: this.canvasSize - 100, y: this.canvasSize - 100 },
+      ];
+
+      this.uploadedImages.forEach((img, index) => {
+        if (img) {
+          ctx.drawImage(img, positions[index].x, positions[index].y, 100, 100);
+        }
+      });
+      this.animationFrameId = requestAnimationFrame(() => this.#drawFrame(ctx));
     } else {
       console.warn("Video is not ready");
     }
@@ -116,6 +129,8 @@ class VideoRecorder {
   }
 
   stopRecording() {
+    cancelAnimationFrame(this.animationFrameId);
+
     if (this.mediaRecorder) {
       this.mediaRecorder.stop();
       this.mediaRecorder = null;
@@ -129,6 +144,7 @@ class VideoRecorder {
     this.videoStream = null;
     this.audioStream = null;
     this.uploadedImage = "";
+    this.uploadedImages = [];
     this.imageInputElement.value = "";
   }
 }

@@ -11,12 +11,13 @@ function processImageUpload(event, videoRecorder) {
     reader.onload = (e) => {
       const image = new Image();
       image.onload = () => {
-        videoRecorder.uploadedImage = image;
+        videoRecorder.uploadedImages.push(image);
       };
       image.src = e.target.result;
     };
     reader.readAsDataURL(file);
   }
+  event.target.value = "";
 }
 
 export default processImageUpload;
