@@ -1,4 +1,5 @@
 import MediaRecorderBase from "./MediaRecorderBase.js";
+import { CANVAS_SIZE, IMAGE_SIZE, CAPTURE_STREAM_FPS } from "./config.js";
 class VideoRecorder extends MediaRecorderBase {
   constructor(canvas, playbackVideoElement, imageInputElement) {
     super();
@@ -9,8 +10,8 @@ class VideoRecorder extends MediaRecorderBase {
     this.mediaRecorder = null;
     this.recordedChunks = [];
     this.liveVideoElement = null;
-    //TODO: Extract this to a config file
-    this.canvasSize = 400;
+
+    this.canvasSize = CANVAS_SIZE;
 
     this.uploadedImage = null;
     this.uploadedImages = [];
@@ -41,6 +42,15 @@ class VideoRecorder extends MediaRecorderBase {
     this.canvas.height = this.canvasSize;
   }
 
+  getCornerPositions(canvasSize, imageSize) {
+    return [
+      { x: 0, y: 0 },
+      { x: canvasSize - imageSize, y: 0 },
+      { x: 0, y: canvasSize - imageSize },
+      { x: canvasSize - imageSize, y: canvasSize - imageSize },
+    ];
+  }
+
   #drawFrame(ctx) {
     if (this.liveVideoElement != null) {
       const minDimension = Math.min(
@@ -61,16 +71,17 @@ class VideoRecorder extends MediaRecorderBase {
         this.canvasSize
       );
 
-      const positions = [
-        { x: 0, y: 0 },
-        { x: this.canvasSize - 100, y: 0 },
-        { x: 0, y: this.canvasSize - 100 },
-        { x: this.canvasSize - 100, y: this.canvasSize - 100 },
-      ];
+      const positions = this.getCornerPositions(this.canvasSize, IMAGE_SIZE);
 
       this.uploadedImages.forEach((img, index) => {
         if (img) {
-          ctx.drawImage(img, positions[index].x, positions[index].y, 100, 100);
+          ctx.drawImage(
+            img,
+            positions[index].x,
+            positions[index].y,
+            IMAGE_SIZE,
+            IMAGE_SIZE
+          );
         }
       });
       this.animationFrameId = requestAnimationFrame(() => this.#drawFrame(ctx));
@@ -79,31 +90,37 @@ class VideoRecorder extends MediaRecorderBase {
     }
   }
 
+  handleRecordingStop(mediaRecorder) {
+    return () => {
+      const { mimeType } = mediaRecorder;
+      const blob = new Blob(this.recordedChunks, { type: mimeType });
+      const url = URL.createObjectURL(blob);
+      this.playbackVideo.src = url;
+      console.log("Recording Ended...");
+    };
+  }
+  handleDataAvailable(event) {
+    if (event.data.size > 0) {
+      this.recordedChunks.push(event.data);
+    }
+  }
+
   handleAudioStreamSuccess(stream) {
     this.audioStream = stream;
-    this.canvasStream = this.canvas.captureStream(30); // 30 FPS
+    this.canvasStream = this.canvas.captureStream(CAPTURE_STREAM_FPS);
 
     const combinedStream = new MediaStream([
       ...this.canvasStream.getVideoTracks(),
       ...this.audioStream.getAudioTracks(),
     ]);
 
-    this.mediaRecorder = new MediaRecorder(combinedStream, {
-      mimeType: "video/webm",
+    this.setupMediaRecorder({
+      stream: combinedStream,
+      onRecordingStart: () => console.log("Recording Started..."),
+      onRecordingStop: this.handleRecordingStop,
+      onDataAvailable: this.handleDataAvailable,
     });
-
-    this.mediaRecorder.ondataavailable = (event) => {
-      if (event.data.size > 0) {
-        this.recordedChunks.push(event.data);
-      }
-    };
-
-    this.mediaRecorder.onstop = () => {
-      const blob = new Blob(this.recordedChunks, { type: "video/webm" });
-      const url = URL.createObjectURL(blob);
-      this.playbackVideo.src = url;
-    };
-
+    console.log({ mediaRecorder: this.mediaRecorder });
     this.mediaRecorder.start();
   }
 

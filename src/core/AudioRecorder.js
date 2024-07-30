@@ -32,9 +32,9 @@ class AudioRecorder extends MediaRecorderBase {
   handleRecordingStop(mediaRecorder) {
     return () => {
       console.info("Recording ended......");
-      let mimeType = mediaRecorder.mimeType;
-      let audioBlob = new Blob(this.recordedAudioChunks, { type: mimeType });
-      let audioUrl = window.URL.createObjectURL(audioBlob);
+      const { mimeType } = mediaRecorder;
+      const audioBlob = new Blob(this.recordedAudioChunks, { type: mimeType });
+      const audioUrl = window.URL.createObjectURL(audioBlob);
       audioPlayback.src = audioUrl;
     };
   }
