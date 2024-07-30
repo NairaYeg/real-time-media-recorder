@@ -1,85 +1,85 @@
-/* Reset and Box Sizing */
+/* Global Reset and Box Sizing */
 * {
-	margin: 0;
-	padding: 0;
-	box-sizing: border-box;
-  }
-  
-  /* Full Height for HTML and Body */
-  html,
-  body {
-	height: 100%;
-  }
-  
-  /* Body Styling */
-  body {
-	font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
-	font-size: 0.8rem;
-  }
-  
-  /* Button Styling */
-  button, 
-  #imageUpload,
-  .fileUploadButton {
-	display: inline-block;
-	outline: none;
-	cursor: pointer;
-	width: 20rem;
-	margin: 0.5rem 1rem;
-	padding: 0 1rem;
-	background-color: #fff;
-	border-radius: 0.25rem;
-	border: 0.1rem solid #0070d2;
-	color: #0070d2;
-	font-size: 0.8rem;
-	line-height: 2rem;
-	font-weight: 400;
-	text-align: center;
-  }
-  
-  button:hover, 
-  .fileUploadButton:hover {
-	background-color: #f4f6f9;
-  }
-  
-  /* Disabled Button Styling */
-  #audioStartBtn:disabled,
-  #videoStartBtn:disabled,
-  #audioStopBtn:disabled,
-  #videoStopBtn:disabled,
-  .toggleMediaSectionBtn:disabled, 
-  .fileUploadButton:disabled {
-	cursor: not-allowed;
-	background-color: #e0e0e0;
-	color: #a0a0a0;
-	border: 0.1rem solid #c0c0c0;
-  }
-  
-  /* Stop Button Styling */
-  #audioStopBtn,
-  #videoStopBtn {
-	border: 0.1rem solid #dddbda;
-  }
-  
-  /* Volume Slider Styling */
-  .volumeSlider {
-	margin: 0.5rem 1rem;
-  }
-  
-  /* Hidden Class */
-  .hidden {
-	display: none  !important;
-  }
-  
-  /* Canvas Styling */
-  #canvas {
-	float: left;
-	border: 0.1rem solid #444444;
-	padding: 0.5rem;
-	margin: 0.5rem;
-	background: #3b3b3b;
-  }
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
 
+/* Full Height for HTML and Body */
+html, body {
+  height: 100%;
+}
+
+/* Body Styling */
+body {
+  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+  font-size: 0.8rem;
+}
+
+/* Button Styling */
+button,
+#imageUpload,
+.fileUploadButton {
+  display: inline-block;
+  outline: none;
+  cursor: pointer;
+  width: 20rem;
+  margin: 0.5rem 1rem;
+  padding: 0 1rem;
+  background-color: #fff;
+  border-radius: 0.25rem;
+  border: 0.1rem solid #0070d2;
+  color: #0070d2;
+  font-size: 0.8rem;
+  line-height: 2rem;
+  font-weight: 400;
+  text-align: center;
+}
+
+button:hover, 
+.fileUploadButton:hover {
+  background-color: #f4f6f9;
+}
+
+/* Disabled Button Styling */
+#audioStartBtn:disabled,
+#videoStartBtn:disabled,
+#audioStopBtn:disabled,
+#videoStopBtn:disabled,
+.toggleMediaSectionBtn:disabled, 
+.fileUploadButton:disabled {
+  cursor: not-allowed;
+  background-color: #e0e0e0;
+  color: #a0a0a0;
+  border: 0.1rem solid #c0c0c0;
+}
+
+/* Stop Button Styling */
+#audioStopBtn,
+#videoStopBtn {
+  border: 0.1rem solid #dddbda;
+}
+
+/* Volume Slider Styling */
+.volumeSlider {
+  margin: 0.5rem 1rem;
+}
+
+/* Hidden Class */
+.hidden {
+  display: none !important;
+}
+
+/* Canvas Styling */
+#canvas {
+  float: left;
+  border: 0.1rem solid #444444;
+  padding: 0.5rem;
+  margin: 0.5rem;
+  background: #3b3b3b;
+}
+
+/* Section Styling */
 section {
   display: flex;
   flex-direction: column;
