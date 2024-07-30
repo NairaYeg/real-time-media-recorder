@@ -1,5 +1,7 @@
-class VideoRecorder {
+import MediaRecorderBase from "./MediaRecorderBase.js";
+class VideoRecorder extends MediaRecorderBase {
   constructor(canvas, playbackVideoElement, imageInputElement) {
+    super();
     this.canvas = canvas;
     this.playbackVideo = playbackVideoElement;
     this.imageInputElement = imageInputElement;
@@ -7,6 +9,7 @@ class VideoRecorder {
     this.mediaRecorder = null;
     this.recordedChunks = [];
     this.liveVideoElement = null;
+    //TODO: Extract this to a config file
     this.canvasSize = 400;
 
     this.uploadedImage = null;
@@ -17,6 +20,20 @@ class VideoRecorder {
     this.canvasStream = null;
 
     this.animationFrameId = null;
+  }
+
+  startRecording() {
+    this.checkRecordingSupport();
+    this.#initializeCanvas();
+    this.#initializeVideoStream();
+  }
+
+  stopRecording() {
+    this.stopStream(this.audioStream);
+    this.stopStream(this.videoStream);
+    this.stopStream(this.canvasStream);
+
+    this.#resetRecordingProperties();
   }
 
   #initializeCanvas() {
@@ -62,16 +79,9 @@ class VideoRecorder {
     }
   }
 
-  async #startRecording() {
+  handleAudioStreamSuccess(stream) {
+    this.audioStream = stream;
     this.canvasStream = this.canvas.captureStream(30); // 30 FPS
-    try {
-      this.audioStream = await navigator.mediaDevices.getUserMedia({
-        audio: true,
-      });
-    } catch (err) {
-      console.error("Failed to get audio stream:", err);
-      return;
-    }
 
     const combinedStream = new MediaStream([
       ...this.canvasStream.getVideoTracks(),
@@ -97,55 +107,53 @@ class VideoRecorder {
     this.mediaRecorder.start();
   }
 
-  #initializeCamera() {
-    navigator.mediaDevices
-      .getUserMedia({ video: true, audio: true })
-      .then((stream) => {
-        this.liveVideoElement = document.createElement("video");
-        this.videoStream = stream;
-        this.liveVideoElement.srcObject = stream;
-        this.liveVideoElement.play();
-
-        this.liveVideoElement.onplaying = () => {
-          const ctx = this.canvas.getContext("2d");
-          this.#startRecording();
-          this.#drawFrame(ctx);
-        };
-      })
-      .catch((err) => {
-        alert("Camera Error");
-      });
+  handleStreamError(err) {
+    console.error("Failed to get audio stream:", err);
+    return;
   }
 
-  startRecording() {
-    this.#initializeCanvas();
-    this.#initializeCamera();
+  async #initializeAudioStream() {
+    this.initializeStream({
+      constraints: { audio: true },
+      onSuccess: this.handleAudioStreamSuccess,
+      onError: this.handleStreamError,
+    });
   }
 
-  #stopStream(stream) {
-    if (stream) {
-      stream.getTracks().forEach((track) => track.stop());
-    }
+  #initializeVideoStream() {
+    this.initializeStream({
+      constraints: { video: true },
+      onSuccess: this.hansleVideoStreamSuccess,
+      onError: this.handleStreamError,
+    });
   }
 
-  stopRecording() {
-    cancelAnimationFrame(this.animationFrameId);
+  hansleVideoStreamSuccess(stream) {
+    this.liveVideoElement = document.createElement("video");
+    this.videoStream = stream;
+    this.liveVideoElement.srcObject = stream;
+    this.liveVideoElement.play();
 
-    if (this.mediaRecorder) {
-      this.mediaRecorder.stop();
-      this.mediaRecorder = null;
-    }
+    this.liveVideoElement.onplaying = () => {
+      const ctx = this.canvas.getContext("2d");
+      this.#initializeAudioStream();
+      this.#drawFrame(ctx);
+    };
+  }
 
-    this.#stopStream(this.audioStream);
-    this.#stopStream(this.videoStream);
-    this.#stopStream(this.canvasStream);
-
+  #resetRecordingProperties() {
     this.recordedChunks = [];
     this.videoStream = null;
     this.audioStream = null;
     this.uploadedImage = "";
     this.uploadedImages = [];
     this.imageInputElement.value = "";
+    cancelAnimationFrame(this.animationFrameId);
+
+    if (this.mediaRecorder) {
+      this.mediaRecorder.stop();
+      this.mediaRecorder = null;
+    }
   }
 }
 

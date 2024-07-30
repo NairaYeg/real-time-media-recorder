@@ -52,6 +52,7 @@ stopBtn.addEventListener("click", () => {
   audioRecorder
     .stop()
     .then((audioBlob) => {
+      //TODO: Refactore the then block to a separate function
       let audioUrl = window.URL.createObjectURL(audioBlob);
       audioPlayback.src = audioUrl;
     })
