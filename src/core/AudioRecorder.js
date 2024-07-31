@@ -1,4 +1,5 @@
 import MediaRecorderBase from "./MediaRecorderBase.js";
+
 class AudioRecorder extends MediaRecorderBase {
   constructor() {
     super();
@@ -14,24 +15,24 @@ class AudioRecorder extends MediaRecorderBase {
 
     this.initializeStream({
       constraints: { audio: true },
-      onSuccess: this.handleStreamSuccess,
-      onError: this.handleStreamError,
+      onSuccess: this.#handleStreamSuccess,
+      onError: this.#handleStreamError,
     });
   }
 
   stopRecording() {
     this.mediaRecorder.stop(this.mediaRecorder);
     this.stopStream(this.stream);
-    this.resetRecordingProperties();
+    this.#resetRecordingProperties();
   }
 
-  handleDataAvailable(event) {
+  #handleDataAvailable(event) {
     this.recordedAudioChunks.push(event.data);
   }
 
-  handleRecordingStop(mediaRecorder) {
+  #handleRecordingStop(mediaRecorder) {
     return () => {
-      console.info("Recording ended......");
+      console.info("Audio Recording Ended...");
       const { mimeType } = mediaRecorder;
       const audioBlob = new Blob(this.recordedAudioChunks, { type: mimeType });
       const audioUrl = window.URL.createObjectURL(audioBlob);
@@ -39,29 +40,30 @@ class AudioRecorder extends MediaRecorderBase {
     };
   }
 
-  handleStreamSuccess(stream) {
+  #handleStreamSuccess(stream) {
     this.stream = stream;
-    this.setupAudioContext(stream);
+    this.#setupAudioContext(stream);
     this.recordedAudioChunks = [];
     // Create a new MediaRecorder instance using the destination stream from the audio context.
     // This is necessary to record the audio after it has been processed by the gainNode,
     // allowing us to capture real-time volume adjustments.
     this.setupMediaRecorder({
       stream: this.destinationStream,
-      onRecordingStart: () => console.info("Recording started......"),
-      onRecordingStop: this.handleRecordingStop,
-      onDataAvailable: this.handleDataAvailable,
+      onRecordingStart: () => console.info("Audio Recording Started..."),
+      onRecordingStop: this.#handleRecordingStop,
+      onDataAvailable: this.#handleDataAvailable,
     });
-    this.setupVolumeControl();
+    this.#setupVolumeControl();
     this.mediaRecorder.start();
   }
 
-  handleStreamError(error) {
+  #handleStreamError(error) {
+    //@TODO Improve error handling
     alert("Error starting audio recording. Please try again.");
     console.error("Error starting audio recording:", error);
   }
 
-  setupAudioContext(stream) {
+  #setupAudioContext(stream) {
     this.audioContext = new AudioContext();
     const source = this.audioContext.createMediaStreamSource(stream);
     this.gainNode = this.audioContext.createGain();
@@ -70,7 +72,7 @@ class AudioRecorder extends MediaRecorderBase {
     this.destinationStream = destination.stream;
   }
 
-  setupVolumeControl() {
+  #setupVolumeControl() {
     const volumeSlider = document.getElementById("volume");
     this.gainNode.gain.value = parseFloat(volumeSlider.value);
 
@@ -81,7 +83,7 @@ class AudioRecorder extends MediaRecorderBase {
     });
   }
 
-  resetRecordingProperties() {
+  #resetRecordingProperties() {
     this.mediaRecorder = null;
     this.stream = null;
     this.audioContext = null;
